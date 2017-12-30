@@ -1,0 +1,6 @@
+[package]
+name = "rust-casl2"
+version = "0.1.0"
+authors = ["Chihiro Hasegawa <pgm3rdlinuxor1000@gmail.com>"]
+
+[dependencies]

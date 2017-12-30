@@ -1,0 +1,16 @@
+pub mod ld;
+pub mod lad;
+pub mod st;
+pub mod add;
+pub mod sub;
+pub mod and;
+pub mod or;
+pub mod xor;
+pub mod sl;
+pub mod cp;
+pub mod jmp;
+pub mod push;
+pub mod pop;
+pub mod call;
+pub mod ret;
+pub mod svc;
