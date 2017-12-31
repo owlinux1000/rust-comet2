@@ -1,5 +1,5 @@
-
 use emu::Emu;
+use constant::*;
 
 pub fn cpa_r1_r2(emu: &mut Emu, code: u16) {
     
@@ -7,21 +7,21 @@ pub fn cpa_r1_r2(emu: &mut Emu, code: u16) {
     let r2 = (code & 0xf) as usize;
 
     if (emu.gr[r1] as i16) > (emu.gr[r2] as i16) {
-        emu.fr.sf = 0;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, false);
     }
 
     if (emu.gr[r1] as i16) == (emu.gr[r2] as i16) {
-        emu.fr.sf = 0;
-        emu.fr.zf = 1;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, true);
     }
 
     if (emu.gr[r1] as i16) < (emu.gr[r2] as i16) {
-        emu.fr.sf = 1;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, true);
+        emu.set_fr(ZF, false);
     }
     
-    emu.fr.of = 0;
+    emu.set_fr(OF, false);
 }
 
 pub fn cpa_r_adr_x(emu: &mut Emu, code: u16) {
@@ -32,21 +32,21 @@ pub fn cpa_r_adr_x(emu: &mut Emu, code: u16) {
     let idx: usize = if x == 0 {0} else {emu.gr[x] as usize};
     
     if (emu.gr[r] as i16) > (emu.memory[adr + idx] as i16) {
-        emu.fr.sf = 0;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, false);
     }
 
     if (emu.gr[r] as i16) == (emu.memory[adr + idx] as i16) {
-        emu.fr.sf = 0;
-        emu.fr.zf = 1;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, true);
     }
 
     if (emu.gr[r] as i16) < (emu.memory[adr + idx] as i16) {
-        emu.fr.sf = 1;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, true);
+        emu.set_fr(ZF, false);
     }
     
-    emu.fr.of = 0;
+    emu.set_fr(OF, false);
 }
 
 pub fn cpl_r1_r2(emu: &mut Emu, code: u16) {
@@ -55,21 +55,21 @@ pub fn cpl_r1_r2(emu: &mut Emu, code: u16) {
     let r2 = (code & 0xf) as usize;
 
     if emu.gr[r1] > emu.gr[r2] {
-        emu.fr.sf = 0;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, false);
     }
 
     if emu.gr[r1] == emu.gr[r2] {
-        emu.fr.sf = 0;
-        emu.fr.zf = 1;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, true);
     }
 
     if emu.gr[r1] < emu.gr[r2] {
-        emu.fr.sf = 1;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, true);
+        emu.set_fr(ZF, false);
     }
     
-    emu.fr.of = 0;
+    emu.set_fr(OF, false);
 }
 
 pub fn cpl_r_adr_x(emu: &mut Emu, code: u16) {
@@ -80,27 +80,28 @@ pub fn cpl_r_adr_x(emu: &mut Emu, code: u16) {
     let idx: usize = if x == 0 {0} else {emu.gr[x] as usize};
     
     if emu.gr[r] > emu.memory[adr + idx] {
-        emu.fr.sf = 0;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, false);
     }
 
     if emu.gr[r] == emu.memory[adr + idx] {
-        emu.fr.sf = 0;
-        emu.fr.zf = 1;
+        emu.set_fr(SF, false);
+        emu.set_fr(ZF, true);
     }
 
     if emu.gr[r] < emu.memory[adr + idx] {
-        emu.fr.sf = 1;
-        emu.fr.zf = 0;
+        emu.set_fr(SF, true);
+        emu.set_fr(ZF, false);
     }
+
+    emu.set_fr(OF, false);
     
-    emu.fr.of = 0;
 }
 
 #[cfg(test)]
 mod tests {
 
-    use emu::{Emu,Fr};
+    use emu::Emu;
     
     #[test]
     fn test_cpa_r1_r2() {
@@ -110,7 +111,7 @@ mod tests {
         emu.memory[0] = 0x4312;
         let code = emu.fetch();
         emu.execute(code);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 0, zf:0});
+        assert_eq!(emu.get_all_fr(), [false, false, false]);
     }
     
     #[test]
@@ -123,7 +124,7 @@ mod tests {
         emu.memory[1000] = 0x8000;
         let code = emu.fetch();
         emu.execute(code);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 0, zf:0});
+        assert_eq!(emu.get_all_fr(), [false, false, false]);
     }
 
     #[test]
@@ -134,7 +135,7 @@ mod tests {
         emu.memory[0] = 0x4512;
         let code = emu.fetch();
         emu.execute(code);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [false, true, false]);
     }
     
     #[test]
@@ -147,7 +148,7 @@ mod tests {
         emu.memory[1000] = 0x8000;
         let code = emu.fetch();
         emu.execute(code);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [false, true, false]);        
     }
 
 }

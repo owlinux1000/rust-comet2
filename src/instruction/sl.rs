@@ -1,5 +1,6 @@
 use emu::Emu;
 use util::*;
+use constant::*;
 
 pub fn sla_r_adr_x(emu: &mut Emu, code: u16) {
     
@@ -11,7 +12,8 @@ pub fn sla_r_adr_x(emu: &mut Emu, code: u16) {
     let shift_bit = adr + idx;
 
     // 1bit余分にbit回転して末尾1byteを取ることで14bit目を取得
-    emu.fr.of = (emu.gr[r].rotate_left(shift_bit + 1) & 0x1) as u8;
+    let of = (emu.gr[r].rotate_left(shift_bit + 1) & 0x1) == 1;
+    emu.set_fr(OF, of);
 
     if is_set_msb(emu.gr[r]) {
         // 元のMSBが1だったらMSBを1でorして強制的に1にする
@@ -21,17 +23,10 @@ pub fn sla_r_adr_x(emu: &mut Emu, code: u16) {
         emu.gr[r] = (emu.gr[r] << shift_bit) & 0x7fff;
     }
 
-    if emu.gr[r] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
+    let v = emu.gr[r];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
 
-    if is_set_msb(emu.gr[r]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
 }
 
 pub fn sll_r_adr_x(emu: &mut Emu, code: u16) {
@@ -44,20 +39,14 @@ pub fn sll_r_adr_x(emu: &mut Emu, code: u16) {
     let shift_bit = adr + idx;
     
     // 1bit余分にbit回転して末尾1byteを取ることで14bit目を取得
-    emu.fr.of = (emu.gr[r].rotate_left(shift_bit) & 0x1) as u8;
-    emu.gr[r] <<= shift_bit;
+    let of = (emu.gr[r].rotate_left(shift_bit) & 0x1) == 1;
+    emu.set_fr(OF, of);
     
-    if emu.gr[r] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
+    emu.gr[r] <<= shift_bit;
 
-    if is_set_msb(emu.gr[r]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
+    let v = emu.gr[r];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
 
 }
 
@@ -70,24 +59,15 @@ pub fn sra_r_adr_x(emu: &mut Emu, code: u16) {
 
     let shift_bit = adr + idx;
 
-    emu.fr.of = ((emu.gr[r].rotate_right(shift_bit) & 0x8000) >> 15) as u8;
+    let of = ((emu.gr[r].rotate_right(shift_bit) & 0x8000) >> 15) == 1;
+    emu.set_fr(OF, of);
     
     emu.gr[r] = ((emu.gr[r] as i16) >> shift_bit) as u16;
 
+    let v = emu.gr[r];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
 
-    if emu.gr[r] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
-
-    if is_set_msb(emu.gr[r]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
-
-    emu.fr.of = 0;
 }
 
 pub fn srl_r_adr_x(emu: &mut Emu, code: u16) {
@@ -99,28 +79,23 @@ pub fn srl_r_adr_x(emu: &mut Emu, code: u16) {
 
     let shift_bit = adr + idx;
 
+    println!("{:0>16b}", emu.gr[r]);
     println!("{:0>16b}", emu.gr[r].rotate_right(shift_bit));
-    emu.fr.of = ((emu.gr[r].rotate_right(shift_bit) & 0x8000) >> 15) as u8;
+    let of = ((emu.gr[r].rotate_right(shift_bit) & 0x8000) >> 15) == 1;
+    emu.set_fr(OF, of);
+    
     emu.gr[r] >>= shift_bit;
 
-    if emu.gr[r] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
-
-    if is_set_msb(emu.gr[r]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
+    let v = emu.gr[r];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
 
 }
 
 #[cfg(test)]
 mod tests {
 
-    use emu::{Emu, Fr};
+    use emu::Emu;
     
     #[test]
     fn test_sla_r_adr_x() {
@@ -132,7 +107,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0b1111101001000000);
-        assert_eq!(emu.fr, Fr{of: 1, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [true, true, false]);
     }
     
     #[test]
@@ -145,7 +120,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0b1111111111101001);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [false, true, false]);
     }
     
     #[test]
@@ -158,7 +133,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 64064);
-        assert_eq!(emu.fr, Fr{of: 1, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [true, true, false]);
     }
     
     #[test]
@@ -170,8 +145,8 @@ mod tests {
         emu.memory[1] = 0x0;
         let code = emu.fetch();
         emu.execute(code);
-        assert_eq!(emu.gr[1], 8169);        
-        assert_eq!(emu.fr, Fr{of: 0, sf: 0, zf:0});
+        assert_eq!(emu.gr[1], 8169);
+        assert_eq!(emu.get_all_fr(), [false, false, false]);
     }
     
 }

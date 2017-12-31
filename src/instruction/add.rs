@@ -1,5 +1,6 @@
 use emu::Emu;
 use util::*;
+use constant::*;
 
 pub fn adda_r1_r2(emu: &mut Emu, code: u16) {
     
@@ -10,25 +11,17 @@ pub fn adda_r1_r2(emu: &mut Emu, code: u16) {
         
         Some(v) => {
             emu.gr[r1] = v as u16;
-            emu.fr.of = 0;
+            emu.set_fr(OF, false);
         },
         None => {
             emu.gr[r1] = ((emu.gr[r1] as i16).wrapping_add(emu.gr[r2] as i16)) as u16;
-            emu.fr.of = 1;
+            emu.set_fr(OF, true);
         }
     }
-    
-    if emu.gr[r1] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
-    
-    if is_set_msb(emu.gr[r1]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
+
+    let v = emu.gr[r1];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
         
 }
 
@@ -45,25 +38,17 @@ pub fn adda_r_adr_x(emu: &mut Emu, code: u16) {
         
         Some(v) => {
             emu.gr[r] = v as u16;
-            emu.fr.of = 0;
+            emu.set_fr(OF, false);
         }
         None => {
             emu.gr[r] = ((emu.gr[r] as i16).wrapping_add(m as i16)) as u16;
-            emu.fr.of = 1;
+            emu.set_fr(OF, true);
         }
     }
-    
-    if emu.gr[r] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
-    
-    if is_set_msb(emu.gr[r]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
+
+    let v = emu.gr[r];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
         
 }
 
@@ -75,25 +60,18 @@ pub fn addl_r1_r2(emu: &mut Emu, code: u16) {
     match emu.gr[r1].checked_add(emu.gr[r2]) {
         Some(v) => {
             emu.gr[r1] = v;
-            emu.fr.of = 0;
+            emu.set_fr(OF, false);
         },
         None => {
             emu.gr[r1] = emu.gr[r1].wrapping_add(emu.gr[r2]);
-            emu.fr.of = 1;
+            emu.set_fr(OF, true);
         }
     }
-    
-    if emu.gr[r1] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
-        
-    if is_set_msb(emu.gr[r1]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
+
+    let v = emu.gr[r1];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
+
 }
 
 pub fn addl_r_adr_x(emu: &mut Emu, code: u16) {
@@ -109,30 +87,23 @@ pub fn addl_r_adr_x(emu: &mut Emu, code: u16) {
         
         Some(v) => {
             emu.gr[r] = v;
-            emu.fr.of = 0;
+            emu.set_fr(OF, false);
         }
         None => {
             emu.gr[r] = emu.gr[r].wrapping_add(m);
-            emu.fr.of = 1;
+            emu.set_fr(OF, true);            
         }
     }
-    
-    if emu.gr[r] == 0 {
-        emu.fr.zf = 1;
-    } else {
-        emu.fr.zf = 0;
-    }
-    
-    if is_set_msb(emu.gr[r]) {
-        emu.fr.sf = 1;
-    } else {
-        emu.fr.sf = 0;
-    }
+
+    let v = emu.gr[r];
+    emu.set_fr(ZF, v == 0);
+    emu.set_fr(SF, is_set_msb(v));
 }
 
 #[cfg(test)]
 mod tests {
-    use emu::{Emu,Fr};
+    
+    use emu::Emu;
 
     #[test]
     fn test_adda_r1_r2() {
@@ -145,7 +116,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0x8000);
-        assert_eq!(emu.fr, Fr{of: 1, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [true, true, false]);
 
         // test for zf
         let mut emu = Emu::new();
@@ -155,7 +126,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0x0);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 0, zf:1});
+        assert_eq!(emu.get_all_fr(), [false, false, true]);
         
     }
     
@@ -170,7 +141,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0x8000);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [false, true, false]);
 
         // test for zf
         let mut emu = Emu::new();
@@ -180,7 +151,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0x0);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 0, zf:1});
+        assert_eq!(emu.get_all_fr(), [false, false, true]);
         
     }
 
@@ -196,7 +167,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0x8000);
-        assert_eq!(emu.fr, Fr{of: 1, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [true, true, false]);
     }
 
     #[test]
@@ -211,7 +182,7 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.gr[1], 0x8000);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 1, zf:0});
+        assert_eq!(emu.get_all_fr(), [false, true, false]);
 
     }
 

@@ -2,11 +2,12 @@ extern crate rust_casl2;
 
 mod util;
 use rust_casl2::emu::Emu;
+use util::*;
 
 fn main() {
     
     let mut emu = Emu::new();
-    
+    /*
     loop {
         
         let code = emu.fetch();
@@ -21,4 +22,5 @@ fn main() {
         println!("{:?}", emu.gr);
         break;
     }
+     */
 }

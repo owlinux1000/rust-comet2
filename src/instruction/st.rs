@@ -11,9 +11,8 @@ pub fn st_r_adr_x(emu: &mut Emu, code: u16) {
 }
 
 #[cfg(test)]
-
 mod tests {
-    use emu::{Emu, Fr};
+    use emu::Emu;
 
     #[test]
     fn test_st_r_adr_x() {
@@ -26,7 +25,5 @@ mod tests {
         let code = emu.fetch();
         emu.execute(code);
         assert_eq!(emu.memory[1000], 0xdead);
-        assert_eq!(emu.fr, Fr{of: 0, sf: 0, zf:0});
-
     }
 }

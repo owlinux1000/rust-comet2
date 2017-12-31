@@ -1,35 +1,35 @@
 use instruction::*;
-
-#[derive(Debug, PartialEq)]
-pub struct Fr {
-    pub of: u8,
-    pub sf: u8,
-    pub zf: u8,
-}
+use constant::*;
 
 pub struct Emu{
+    
     pub memory: [u16; 65536],
+    
+    // General Register
     pub gr: [u16; 8],
+    
+    // Program Register
     pub pr: u16,
+    
+    // Stack Pointer
     pub sp: Vec<u16>,
-    pub fr: Fr,
+    
+    // Flag Register [OF, SF, ZF]
+    fr: [bool; 3], 
 }
 
 impl Emu {
+    
     pub fn new() -> Emu {
         Emu{
             memory: [0; 65536],
             gr: [0; 8],
             pr: 0,
             sp: Vec::new(),
-            fr: Fr {
-                of: 0,
-                sf: 0,
-                zf: 0,
-            },
+            fr: [false; 3],
         }
     }
-
+    
     pub fn fetch(&mut self) -> u16 {
         
         let code = self.memory[self.pr as usize];
@@ -43,6 +43,7 @@ impl Emu {
         let op = (code & 0xff00) >> 8;
         
         match op {
+            
             0x10 => {
                 ld::ld_r_adr_x(self, code);
             },
@@ -152,12 +153,35 @@ impl Emu {
                 ret::ret(self);
             },
             0xf0 => {
-                svc::svc_adr_x(self, code);
+                svc::svc_adr_x(self, code);                
             },
             _ => {
                 println!("Not implemented.");
             }
         }
     }
+    
+    pub fn set_fr(&mut self, i: usize, flag: bool) {
+        
+        if i > 2 {
+            println!("Invalid flag register.")
+        }
+        self.fr[i] = flag;
+        
+    }
+
+    pub fn get_fr(&self, i: usize) -> bool {
+        
+        if i > 2 {
+            println!("Invalid flag register.")
+        }
+        self.fr[i]
+            
+    }
+
+    pub fn get_all_fr(&self) -> [bool; 3] {
+        self.fr
+    }
+    
 }
 
