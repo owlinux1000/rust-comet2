@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 
 pub fn call_adr_x(emu: &mut Emu, code: u16) {
     
@@ -14,7 +14,7 @@ pub fn call_adr_x(emu: &mut Emu, code: u16) {
 #[cfg(test)]
 mod tests {
 
-    use emu::Emu;
+    use hardware::Emu;    
 
     #[test]
     fn test_call_adr_x() {

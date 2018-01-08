@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 use constant::*;
 
 pub fn jpl_adr_x(emu: &mut Emu, code: u16) {
@@ -73,7 +73,7 @@ pub fn jmp_adr_x(emu: &mut Emu, code: u16) {
 #[cfg(test)]
 mod tests {
     
-    use emu::Emu;
+    use hardware::Emu;    
     use constant::*;
 
     #[test]

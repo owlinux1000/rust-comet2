@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 
 pub fn lad_r_adr_x(emu: &mut Emu, code: u16) {
     
@@ -13,8 +13,9 @@ pub fn lad_r_adr_x(emu: &mut Emu, code: u16) {
 
 #[cfg(test)]
 mod tests {
-    use emu::Emu;
-
+    
+    use hardware::Emu;
+    
     #[test]
     fn test_lad_r_adr_x() {
         

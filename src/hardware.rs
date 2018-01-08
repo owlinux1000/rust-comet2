@@ -1,5 +1,9 @@
 use instruction::*;
 
+pub const ZF: u8 = 0b001;
+pub const SF: u8 = 0b010;
+pub const OF: u8 = 0b100;
+
 #[derive(Debug)]
 pub struct Fr {
     pub of: bool,
@@ -19,13 +23,13 @@ impl Fr {
             panic!("Invalid flag register");
         }
              
-        if v & 0b1 == 1 {
+        if v & ZF == ZF {
             self.zf = true;
         }
-        if v & 0b10 == 2 {
+        if v & SF == SF {
             self.sf = true;
         }
-        if v & 0b100 == 4 {
+        if v & OF == OF {
             self.of = true;
         }
              
@@ -36,14 +40,14 @@ impl Fr {
         if !(0 < v && v < 8) {
             panic!("Invalid flag register");
         }
-             
-        if v & 0b1 == 1 {
+
+        if v & ZF == ZF {
             self.zf = false;
         }
-        if v & 0b10 == 2 {
+        if v & SF == SF {
             self.sf = false;
         }
-        if v & 0b100 == 4 {
+        if v & OF == OF {
             self.of = false;
         }
     }

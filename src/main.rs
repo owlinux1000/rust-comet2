@@ -4,9 +4,9 @@ extern crate libc;
 
 use getopts::Options;
 
-use rust_comet2::hardware::emu::Emu;
+use rust_comet2::hardware::{Emu};
 use rust_comet2::cli;
-use rust_comet2::constant::{OF,SF,ZF};
+use rust_comet2::constant::*;
 
 fn main() {
 

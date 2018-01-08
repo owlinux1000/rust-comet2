@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 
 pub fn push_adr_x(emu: &mut Emu, code: u16) {
     
@@ -13,8 +13,8 @@ pub fn push_adr_x(emu: &mut Emu, code: u16) {
 #[cfg(test)]
 mod tests {
 
-    use emu::Emu;
-
+    use hardware::Emu;
+    
     #[test]
     fn test_push_adr_x() {
         let mut emu = Emu::new();

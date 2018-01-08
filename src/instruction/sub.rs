@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 use util::*;
 use constant::*;
 
@@ -103,7 +103,7 @@ pub fn subl_r_adr_x(emu: &mut Emu, code: u16) {
 #[cfg(test)]
 mod tests {
     
-    use emu::Emu;
+    use hardware::Emu;
 
     #[test]
     fn test_suba_r1_r2() {

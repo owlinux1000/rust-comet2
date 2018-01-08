@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 use constant::*;
 
 pub fn cpa_r1_r2(emu: &mut Emu, code: u16) {
@@ -101,7 +101,7 @@ pub fn cpl_r_adr_x(emu: &mut Emu, code: u16) {
 #[cfg(test)]
 mod tests {
 
-    use emu::Emu;
+    use hardware::Emu;    
     
     #[test]
     fn test_cpa_r1_r2() {

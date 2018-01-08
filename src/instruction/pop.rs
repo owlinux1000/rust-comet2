@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 
 pub fn pop_r(emu: &mut Emu, code: u16) {
     let r = ((code & 0xf0) >> 4) as usize;
@@ -8,7 +8,7 @@ pub fn pop_r(emu: &mut Emu, code: u16) {
 #[cfg(test)]
 mod tests {
 
-    use emu::Emu;
+    use hardware::Emu;    
 
     #[test]
     fn test_pop_r() {

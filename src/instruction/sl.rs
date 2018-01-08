@@ -1,4 +1,4 @@
-use hardware::emu::Emu;
+use hardware::Emu;
 use util::*;
 use constant::*;
 
@@ -95,7 +95,7 @@ pub fn srl_r_adr_x(emu: &mut Emu, code: u16) {
 #[cfg(test)]
 mod tests {
 
-    use emu::Emu;
+    use hardware::Emu;
     
     #[test]
     fn test_sla_r_adr_x() {
