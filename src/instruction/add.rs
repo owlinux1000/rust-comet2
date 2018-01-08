@@ -1,4 +1,4 @@
-use emu::Emu;
+use hardware::emu::Emu;
 use util::*;
 use constant::*;
 

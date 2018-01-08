@@ -1,4 +1,4 @@
-use emu::Emu;
+use hardware::emu::Emu;
 use constant::*;
 
 pub fn jpl_adr_x(emu: &mut Emu, code: u16) {

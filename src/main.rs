@@ -1,43 +1,39 @@
 extern crate rust_comet2;
+extern crate getopts;
+extern crate libc;
 
-use rust_comet2::emu::Emu;
+use getopts::Options;
+
+use rust_comet2::hardware::emu::Emu;
 use rust_comet2::cli;
+use rust_comet2::constant::{OF,SF,ZF};
 
 fn main() {
 
     let args: Vec<String> = std::env::args().collect();
 
+    let mut opts = Options::new();
+    
+    cli::init_opts(&mut opts);
+    
+    let matches = match opts.parse(&args[1..]) {
+        Ok(m) => m,
+        Err(f) => panic!(f.to_string()),
+    };
+
+    if matches.opt_present("h") || args.len() == 1 {
+        println!("{}", opts.usage(&args[0]));
+        std::process::exit(0);        
+    }
+    
     let mut codes = String::new();
     
-    match cli::arg_parse(&args) {
-        
-        cli::Func::Help => {
-            
-            println!("Usage: rust-comet2 <filename>");
-            std::process::exit(0);
-            
-        },
-        
-        cli::Func::Execute => {
-            
-            use std::fs::File;            
-            use std::path::Path;
-            use std::io::prelude::*;
-            
-            let path = Path::new(&args[1]);
-            let mut file = File::open(&path).unwrap();
-            file.read_to_string(&mut codes).unwrap();
-            
-        },
-        
-        cli::Func::Error => {
-            
-            std::process::exit(1);
-            
-        },
-    };
+    if !matches.free.is_empty() {
+        cli::read_source_code(&mut codes, &matches.free[0]);
+    }
     
     let mut emu = Emu::new();
+    emu.debug_mode = matches.opt_present("d");
     let mut code_len = 0;
     
     for (i,line) in codes.lines().enumerate() {
@@ -49,20 +45,29 @@ fn main() {
         }
     }
 
-    let mut i = 0;
-    
-    while i < code_len {
+    for _ in 0..code_len {
 
         let code = emu.fetch();
-        println!("Memory {:0>4x}", code);
-        if code == 0 {
-            break;
+        
+        if emu.debug_mode {
+            println!("Code\t0x{:0>4x}\t{:0>16b}", code, code);
         }
         
         emu.execute(code);
-        i += 1;
+        
+        if emu.debug_mode {
+            for (i,gr) in emu.gr.iter_mut().enumerate() {
+                println!("GR{}\t0x{:0>4x}\t{:0>16b}", i, gr, gr);
+            }
+            println!("OF\t{}", emu.get_fr(OF));
+            println!("SF\t{}", emu.get_fr(SF));
+            println!("ZF\t{}", emu.get_fr(ZF));
+            println!("");
+            unsafe {
+                libc::getchar();
+            }
+        }
 
-        println!("GR {:?}", emu.gr);
     }
     
 }

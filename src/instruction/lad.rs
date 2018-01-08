@@ -1,4 +1,4 @@
-use emu::Emu;
+use hardware::emu::Emu;
 
 pub fn lad_r_adr_x(emu: &mut Emu, code: u16) {
     

@@ -1,36 +1,17 @@
+extern crate getopts;
 use std::path::Path;
+use std::fs::File;
+use std::io::prelude::*;
+use self::getopts::Options;
 
-pub enum Func {
-    Help,
-    Execute,
-    Error,
+pub fn init_opts(opts: &mut Options) {
+    opts.optflag("h", "help", "print this help menu");
+    opts.optflag("d", "debug", "execute debugging mode");
 }
 
-pub fn arg_parse(args: &Vec<String>) -> Func {
-    
-    let argc = args.len();
-    
-    if argc == 1 || (argc == 2 && args[1] == "-h") {
-        return Func::Help
-    }
-
-    
-    if argc == 2 {
-        
-        if Path::new(&args[1]).exists() {
-            
-            return Func::Execute;
-            
-        } else {
-            
-            println!("Cannot open {:?}", &args[1]);
-            return Func::Error;
-            
-        }
-        
-    } else {
-        
-        return Func::Error;
-        
-    }
+pub fn read_source_code(buf: &mut String, path: &str) {
+    let path = Path::new(path);
+    let mut file = File::open(path).unwrap();
+    file.read_to_string(buf).unwrap();
 }
+        

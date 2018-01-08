@@ -1,4 +1,4 @@
-use emu::Emu;
+use hardware::emu::Emu;
 use constant::*;
 
 pub fn cpa_r1_r2(emu: &mut Emu, code: u16) {

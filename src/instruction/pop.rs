@@ -1,4 +1,4 @@
-use emu::Emu;
+use hardware::emu::Emu;
 
 pub fn pop_r(emu: &mut Emu, code: u16) {
     let r = ((code & 0xf0) >> 4) as usize;

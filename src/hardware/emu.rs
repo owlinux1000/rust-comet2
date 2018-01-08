@@ -1,5 +1,100 @@
 use instruction::*;
 
+#[derive(Debug)]
+pub struct Fr {
+    pub of: bool,
+    pub sf: bool,
+    pub zf: bool,
+}
+
+impl Fr {
+    
+    pub fn new() -> Fr {
+        Fr{of: false, sf: false, zf: false}
+    }
+
+    pub fn on(&mut self, v: u8) {
+        
+        if !(0 < v && v < 8) {
+            panic!("Invalid flag register");
+        }
+             
+        if v & 0b1 == 1 {
+            self.zf = true;
+        }
+        if v & 0b10 == 2 {
+            self.sf = true;
+        }
+        if v & 0b100 == 4 {
+            self.of = true;
+        }
+             
+    }
+
+    pub fn off(&mut self, v: u8) {
+            
+        if !(0 < v && v < 8) {
+            panic!("Invalid flag register");
+        }
+             
+        if v & 0b1 == 1 {
+            self.zf = false;
+        }
+        if v & 0b10 == 2 {
+            self.sf = false;
+        }
+        if v & 0b100 == 4 {
+            self.of = false;
+        }
+    }
+}
+
+#[test]
+fn test_fr() {
+    
+    let mut fr = Fr::new();
+    
+    // ZFだけ立てる
+    fr.on(1);
+    assert_eq!(fr.zf, true);
+    assert_eq!(fr.sf, false);
+    assert_eq!(fr.of, false);
+    fr.off(1);
+    
+    // SFだけ立てる
+    fr.on(2);
+    assert_eq!(fr.zf, false);
+    assert_eq!(fr.sf, true);
+    assert_eq!(fr.of, false);
+    fr.off(2);
+
+    // OFだけ立てる
+    fr.on(4);
+    assert_eq!(fr.zf, false);
+    assert_eq!(fr.sf, false);
+    assert_eq!(fr.of, true);
+    fr.off(4);
+
+    // SFとZFだけ立てる
+    fr.on(1 | 2);
+    assert_eq!(fr.zf, true);
+    assert_eq!(fr.sf, true);
+    assert_eq!(fr.of, false);
+    fr.off(1 | 2);
+
+    // 全部立てる
+    fr.on(1 | 2 | 4);
+    assert_eq!(fr.zf, true);
+    assert_eq!(fr.sf, true);
+    assert_eq!(fr.of, true);
+    fr.off(1 | 2 | 4);
+    assert_eq!(fr.zf, false);
+    assert_eq!(fr.sf, false);
+    assert_eq!(fr.of, false);
+
+
+}
+
 pub struct Emu{
     
     pub memory: [u16; 65536],
@@ -14,7 +109,9 @@ pub struct Emu{
     pub sp: Vec<u16>,
     
     // Flag Register [OF, SF, ZF]
-    fr: [bool; 3], 
+    fr: [bool; 3],
+
+    pub debug_mode: bool,
 }
 
 impl Emu {
@@ -26,6 +123,7 @@ impl Emu {
             pr: 0,
             sp: Vec::new(),
             fr: [false; 3],
+            debug_mode: false,
         }
     }
     
@@ -40,7 +138,11 @@ impl Emu {
     pub fn execute(&mut self, code: u16) {
         
         let op = (code & 0xff00) >> 8;
-        println!("[ DEBUG ] {:0>2x}", op);
+        
+        if self.debug_mode {
+            println!("Opcode\t0x{:0>2x}\t{:0>8b}", op, op);
+        }
+        
         match op {
             
             0x10 => {
