@@ -6,7 +6,7 @@ pub fn ld_r1_r2(emu: &mut Emu, code: u16) {
     
     let r1 = ((code & 0xf0) >> 4) as usize;
     let r2 = (code & 0xf) as usize;
-    
+
     emu.gr[r1] = emu.gr[r2];
     
     let v = emu.gr[r1];

@@ -1,5 +1,4 @@
 use instruction::*;
-use constant::*;
 
 pub struct Emu{
     
@@ -41,7 +40,7 @@ impl Emu {
     pub fn execute(&mut self, code: u16) {
         
         let op = (code & 0xff00) >> 8;
-        
+        println!("[ DEBUG ] {:0>2x}", op);
         match op {
             
             0x10 => {

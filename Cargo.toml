@@ -1,5 +1,5 @@
 [package]
-name = "rust-casl2"
+name = "rust-comet2"
 version = "0.1.0"
 authors = ["Chihiro Hasegawa <pgm3rdlinuxor1000@gmail.com>"]
 
