@@ -13,7 +13,7 @@ fn main() {
         
         cli::Func::Help => {
             
-            println!("Usage: rust_comet2 <filename>");
+            println!("Usage: rust-comet2 <filename>");
             std::process::exit(0);
             
         },
