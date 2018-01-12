@@ -5,10 +5,10 @@ pub const SF: u8 = 0b010;
 pub const OF: u8 = 0b100;
 
 #[derive(Debug)]
-pub struct Fr {
-    pub of: bool,
-    pub sf: bool,
-    pub zf: bool,
+struct Fr {
+    of: bool,
+    sf: bool,
+    zf: bool,
 }
 
 impl Fr {
@@ -16,87 +16,33 @@ impl Fr {
     pub fn new() -> Fr {
         Fr{of: false, sf: false, zf: false}
     }
+    
+    pub fn set(&mut self, i: u8, f: bool) {
 
-    pub fn on(&mut self, v: u8) {
+        match i {
+            ZF => self.zf = f,
+            SF => self.sf = f,
+            OF => self.of = f,
+            _ => panic!("Invalid flag register"),
+        };
         
-        if !(0 < v && v < 8) {
-            panic!("Invalid flag register");
-        }
-             
-        if v & ZF == ZF {
-            self.zf = true;
-        }
-        if v & SF == SF {
-            self.sf = true;
-        }
-        if v & OF == OF {
-            self.of = true;
-        }
-             
     }
 
-    pub fn off(&mut self, v: u8) {
-            
-        if !(0 < v && v < 8) {
-            panic!("Invalid flag register");
-        }
-
-        if v & ZF == ZF {
-            self.zf = false;
-        }
-        if v & SF == SF {
-            self.sf = false;
-        }
-        if v & OF == OF {
-            self.of = false;
-        }
+    pub fn get_all(&self) -> [bool; 3] {
+        [self.of, self.sf, self.zf]
     }
-}
-
-#[test]
-fn test_fr() {
     
-    let mut fr = Fr::new();
+    pub fn get(&self, i: u8) -> bool {
+        
+        match i {
+            ZF => self.zf,
+            SF => self.sf,
+            OF => self.of,
+            _ => panic!("Invalid flag register"),
+        }
+        
+    }
     
-    // ZFだけ立てる
-    fr.on(1);
-    assert_eq!(fr.zf, true);
-    assert_eq!(fr.sf, false);
-    assert_eq!(fr.of, false);
-    fr.off(1);
-    
-    // SFだけ立てる
-    fr.on(2);
-    assert_eq!(fr.zf, false);
-    assert_eq!(fr.sf, true);
-    assert_eq!(fr.of, false);
-    fr.off(2);
-
-    // OFだけ立てる
-    fr.on(4);
-    assert_eq!(fr.zf, false);
-    assert_eq!(fr.sf, false);
-    assert_eq!(fr.of, true);
-    fr.off(4);
-
-    // SFとZFだけ立てる
-    fr.on(1 | 2);
-    assert_eq!(fr.zf, true);
-    assert_eq!(fr.sf, true);
-    assert_eq!(fr.of, false);
-    fr.off(1 | 2);
-
-    // 全部立てる
-    fr.on(1 | 2 | 4);
-    assert_eq!(fr.zf, true);
-    assert_eq!(fr.sf, true);
-    assert_eq!(fr.of, true);
-    fr.off(1 | 2 | 4);
-    assert_eq!(fr.zf, false);
-    assert_eq!(fr.sf, false);
-    assert_eq!(fr.of, false);
-
-
 }
 
 pub struct Emu{

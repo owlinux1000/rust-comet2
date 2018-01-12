@@ -55,14 +55,16 @@ fn main() {
         
         emu.execute(code);
         
-        if emu.debug_mode {
-            for (i,gr) in emu.gr.iter_mut().enumerate() {
-                println!("GR{}\t0x{:0>4x}\t{:0>16b}", i, gr, gr);
-            }
-            println!("OF\t{}", emu.get_fr(OF));
-            println!("SF\t{}", emu.get_fr(SF));
-            println!("ZF\t{}", emu.get_fr(ZF));
-            println!("");
+
+        for (i,gr) in emu.gr.iter_mut().enumerate() {
+            println!("GR{}\t0x{:0>4x}\t{:0>16b}", i, gr, gr);
+        }
+        println!("OF\t{}", emu.get_fr(OF));
+        println!("SF\t{}", emu.get_fr(SF));
+        println!("ZF\t{}", emu.get_fr(ZF));
+        println!("");
+        
+        if emu.debug_mode {        
             unsafe {
                 libc::getchar();
             }
