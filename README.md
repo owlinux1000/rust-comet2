@@ -2,7 +2,17 @@
 
 Rustの勉強用に書いたCOMET IIエミュレータ
 
-## example
+## 使い方
+
+### ツールとして
+
+[rust-casl2](https://git.alicemacs.com/chihiro/rust-casl2)で生成したファイルを用いてエミュレータで実行することができます．
+
+```
+$ rust-comet2 sample
+```
+
+### ライブラリとして
 
 ```
 extern crate rust_casl2;
@@ -23,6 +33,5 @@ fn main() {
 ## 補足
 
 * SVC命令については未実装
-* エミュレータ自身は，NOP命令が来たらプログラムが終了するようにmain側で調節して
 * **Rust初心者なのでRustっぽい書き方を教えてください**
 
